@@ -24,9 +24,8 @@
     "noImplicitThis": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true,
-
+    "noUncheckedIndexedAccess": true
   },
-  "include": ["src"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/vite-env.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

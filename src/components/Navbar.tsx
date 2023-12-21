@@ -1,23 +1,20 @@
-import { Link } from "react-router-dom";
+import React from "react";
 import { logo } from "../../public/dumbbell.tsx";
 
 const Navbar = () => {
-  const homeLink = `${import.meta.env["BASE_URL"]}/home`;
-  const scheduleLink = `${import.meta.env["BASE_URL"]}/schedule`;
-  const aboutLink = `${import.meta.env["BASE_URL"]}/about`;
-
+  //console.log(import.meta.env.VITE_APP_BASE_PATH);
   return (
     <nav className="navbar">
       <div className="logo">{logo}</div>
       <ul className="nav-links">
         <li>
-          <Link to={homeLink}>Home</Link>
+          <a href={`/home`}>Home</a>
         </li>
         <li>
-          <Link to={scheduleLink}>Schedule</Link>
+          <a href={`/schedule`}>Schedule</a>
         </li>
         <li>
-          <Link to={aboutLink}>About</Link>
+          <a href={`/about`}>About</a>
         </li>
       </ul>
     </nav>

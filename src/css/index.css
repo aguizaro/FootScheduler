@@ -19,7 +19,7 @@
 
 body {
   padding: 0em;
-  margin: 0em;
+  margin: 1em;
   min-width: 95vw;
   min-height: 95vh;
   display: flex;
@@ -89,19 +89,28 @@ button:focus-visible {
   border-radius: 0% 0% 8px 8px;
 }
 
-.mini-logo {
-  font-size: 1rem;
-  font-weight: bold;
-}
-
 .nav-links {
   list-style: none;
   display: flex;
   gap: 3rem;
 }
 
-#title {
+.title {
   color: var(--color-highlight);
+
+}
+
+.inner-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+}
+
+.content {
+  width: 80%;
 
 }
 
@@ -117,4 +126,34 @@ footer {
   width: 95%;
   box-shadow: var(--color-accent) 4px 4px 0px 0px;
   border-radius: 0% 0% 8px 8px;
+}
+
+@media screen and (max-width: 768px) {
+  :root {
+    font-size: 12px;
+  }
+
+  html {
+    display: flex;
+    justify-content: center;
+  }
+
+  body {
+    width: 100vw;
+    max-height: 100vh;
+    margin: 1em;
+  }
+
+  .navbar {
+    overflow: auto;
+    justify-content: space-evenly;
+  }
+
+  .nav-links {
+    gap: 2rem;
+  }
+
+  .logo {
+    scale: 0.7;
+  }
 }
