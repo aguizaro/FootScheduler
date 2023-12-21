@@ -1,5 +1,3 @@
-import React from "react";
-
 export const logo = (
   <svg
     version="1.0"
