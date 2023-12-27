@@ -1,12 +1,11 @@
 import React from "react";
-import App from "../components/App";
 import "../css/index.css";
 
-const Home: React.FC = () => {
+const Home = () => {
   return (
     <div className="inner-container">
       <h1>
-        Welcome to <span className="title">Foot Scheduler</span>
+        Create a <span className="title">Football Schedule</span>
       </h1>
       <div className="content">
         <p>
@@ -16,8 +15,6 @@ const Home: React.FC = () => {
         </p>
         <p>Click the 'Schedule' link in the navbar to get started!</p>
         <br />
-        <h3>Kanye Quotes</h3>
-        <App />
       </div>
     </div>
   );
