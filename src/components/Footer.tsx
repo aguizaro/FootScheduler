@@ -6,7 +6,7 @@ const Footer = () => {
       <p>
         &copy; 2023 FootScheduler |{" "}
         <a
-          href="https://github.com/aguizaro"
+          href="https://github.com/aguizaro/FutPlanner"
           target="_blank"
           rel="noopener noreferrer"
         >
