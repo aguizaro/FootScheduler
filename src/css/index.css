@@ -2,14 +2,15 @@
   --color-highlight: #2cf200;
   --color-highlight-hover: #d1fbc4;
   --color-accent: #92ed6f;
+  --color-background: #242424;
 
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: var(--color-background);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -109,7 +110,58 @@ button:focus-visible {
 
 .content {
   width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
+}
+
+.survey {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  margin: 1em;
+  padding: 1em;
+  background-color: #333;
+  color: #fff;
+  box-shadow: var(--color-accent) 4px 4px 0px 0px;
+  border-radius: 8px 8px 8px 8px;
+}
+
+.dropdown {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  align-content: center;
+  margin: 0.5em;
+}
+
+.dropdown label {
+  margin: 0.25em 0.5em 0.5em 0.25em;
+  padding: 0.25em 1em 0.25em 1em;
+  font-size: 1.1em;
+  text-align: center;
+  background-color: var(--color-background);
+  color: #fff;
+  box-shadow: var(--color-accent) 1px 1px 0px 0px;
+  border-radius: 8px;
+  max-width: fit-content;
+}
+
+.dropdown select {
+  border: 0.1em solid white;
+  font-size: 0.9em;
+  border-radius: 5px;
+  background-color: var(--color-background);
+  color: #ffffff;
+  cursor: pointer;
+  text-align: center;
+  width: 20em;
+  margin: 0.25em;
 }
 
 footer {

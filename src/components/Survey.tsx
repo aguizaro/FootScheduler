@@ -82,7 +82,7 @@ const getCachedData = async () => {
 };
 
 export const Dropdown = ({ label, options, onChange }) => (
-  <div>
+  <div className="dropdown">
     <label>{label}</label>
     <select onChange={(e) => onChange(e.target.value)}>
       <option value=""></option>
@@ -196,10 +196,10 @@ const Survey = () => {
 
   try {
     return (
-      <div className="App">
+      <>
         <div className="survey">
           <Dropdown
-            label="Select "
+            label="Select Option"
             options={[
               { name: "Leagues", value: "leagues" },
               { name: "Countries", value: "countries" },
@@ -258,7 +258,7 @@ const Survey = () => {
 
           {isVisibleThirdDrop && (
             <Dropdown
-              label={`Select Team in ${selectedLeague} `}
+              label={`Select Team`}
               options={teams.map((team: TeamEntry) => ({
                 name: team.name,
                 value: team.name,
@@ -291,7 +291,7 @@ const Survey = () => {
             <p key={index}>{`${fav.league} - ${fav.team}`}</p>
           ))}
         </div>
-      </div>
+      </>
     );
   } catch (error) {
     console.error("Error displaying data:", error);
