@@ -5,7 +5,7 @@ import "./css/index.css";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home.tsx";
-import Schedule from "./pages/Schedule.tsx";
+import Schedule from "./pages/Planner.tsx";
 import About from "./pages/About.tsx";
 
 ReactDOM.createRoot(document.getElementById("container")!).render(

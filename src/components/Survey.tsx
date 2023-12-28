@@ -7,8 +7,12 @@ interface TeamEntry {
 }
 
 interface LeagueEntry {
+  id: number;
   name: string;
   logo: string;
+  country_name: string;
+  country_flag: string;
+  current_season: number;
   teams: TeamEntry[];
 }
 
@@ -24,8 +28,8 @@ interface FavoritesEntry {
 }
 
 const fetchData = async () => {
-  let league_data = null;
-  let countries_data = null;
+  let league_data: LeagueEntry[];
+  let countries_data: CountryEntry[];
   // fetch league data
   try {
     const league_response = await axios.get("http://127.0.0.1:3001/leagues");
@@ -45,7 +49,7 @@ const fetchData = async () => {
     );
     if (countries_response.status !== 200)
       throw new Error(countries_response.statusText);
-    countries_data = countries_response.data;
+    countries_data = countries_response.data.countries;
 
     localStorage.setItem("activeCountries", JSON.stringify(countries_data));
   } catch (error) {
@@ -92,7 +96,13 @@ export const Dropdown = ({ label, options, onChange }) => (
 );
 
 const Survey = () => {
-  const [favorites, setFavorites] = useState<FavoritesEntry[]>([]);
+  // State variables
+  const [favorites, setFavorites] = useState<FavoritesEntry[]>(() => {
+    const localFavorites = localStorage.getItem("favorites");
+    return localFavorites
+      ? (JSON.parse(localFavorites) as FavoritesEntry[])
+      : [];
+  });
   const [selectedItem, setSelectedItem] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedLeague, setSelectedLeague] = useState("");
@@ -113,47 +123,31 @@ const Survey = () => {
     setSelectedTeam("");
   };
 
-  const addToFavs = (league, team) => {
-    const newFavorite = { league, team };
-
-    const localFavorites = localStorage.getItem("favorites");
-
-    if (localFavorites) {
-      const parsedFavorites = JSON.parse(localFavorites);
-
-      // check if the new favorite already exists
-      const exists = parsedFavorites.some(
-        (fav) => fav.league === league && fav.team === team
+  const addToFavs = (newFav: FavoritesEntry) => {
+    if (favorites.length > 0) {
+      const entryFound = favorites.some(
+        (fav) => fav.league === newFav.league && fav.team === newFav.team
       );
-
-      if (!exists) {
-        // update local storage
-        const updatedFavorites = [...parsedFavorites, newFavorite];
-        localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-
-        setFavorites(updatedFavorites);
-      }
+      // If the new favorite doesn't already exist, add it
+      if (!entryFound) setFavorites([...favorites, newFav]);
     } else {
-      // If local storage is empty, add the new favorite
-      const updatedFavorites = [newFavorite];
-      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-
-      setFavorites(updatedFavorites);
+      // if favorites is empty, add new fav -> also saves to localstorage in useEffect
+      setFavorites([newFav]);
     }
   };
 
   useEffect(() => {
-    // get favorites when the component mounts
-    const localFavorites = localStorage.getItem("favorites");
-    if (localFavorites) {
-      setFavorites(JSON.parse(localFavorites));
-    }
     // get countries and leagues data when the component mounts
     const getData = async () => await getCachedData();
-    getData().then((data) => {
-      setCountries(data.countries_data.countries);
-      setLeagues(data.league_data);
-    });
+    getData().then(
+      (data: {
+        countries_data: CountryEntry[];
+        league_data: LeagueEntry[];
+      }) => {
+        setCountries(data.countries_data);
+        setLeagues(data.league_data);
+      }
+    );
   }, []);
 
   useEffect(() => {
@@ -175,6 +169,11 @@ const Survey = () => {
       setTeams(selectedLeagueData ? selectedLeagueData.teams : []);
     }
   }, [selectedLeague, leagues]);
+
+  useEffect(() => {
+    //save favorites to local storage when the favorites state changes
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
 
   useEffect(() => {
     // Set visibility of the dropdowns based on the selections
@@ -276,7 +275,9 @@ const Survey = () => {
             Selection: {selectedLeague} - {selectedTeam}
           </p>
           <button
-            onClick={() => addToFavs(selectedLeague!, selectedTeam!)}
+            onClick={() =>
+              addToFavs({ league: selectedLeague!, team: selectedTeam! })
+            }
             disabled={isAddToFavsDisabled}
           >
             Add to favorites
