@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Dropdown } from "../components/Dropdown";
 
 interface TeamEntry {
   name: string;
@@ -25,6 +26,11 @@ interface CountryEntry {
 interface FavoritesEntry {
   league: string;
   team: string;
+}
+
+interface OptionEntry {
+  name: string;
+  imgURL: string;
 }
 
 const fetchData = async () => {
@@ -81,43 +87,94 @@ const getCachedData = async () => {
   }
 };
 
-export const Dropdown = ({ label, options, onChange }) => (
-  <div className="dropdown">
-    <label>{label}</label>
-    <select onChange={(e) => onChange(e.target.value)}>
-      <option value=""></option>
-      {options.map((option) => (
-        <option key={option.name} value={option.value}>
-          {option.name}
-        </option>
-      ))}
-    </select>
-  </div>
-);
-
-const Survey = () => {
-  // State variables
+export const Survey = () => {
+  // favorite teams and leagues
   const [favorites, setFavorites] = useState<FavoritesEntry[]>(() => {
     const localFavorites = localStorage.getItem("favorites");
     return localFavorites
       ? (JSON.parse(localFavorites) as FavoritesEntry[])
       : [];
   });
-  const [selectedItem, setSelectedItem] = useState("");
+  // currently selected options
+  const [selectedOption, setSelectedOption] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedLeague, setSelectedLeague] = useState("");
   const [selectedTeam, setSelectedTeam] = useState("");
+  // currently available options
+  const [countryOptions, setCountryOptions] = useState<OptionEntry[]>([]);
+  const [leagueOptions, setLeagueOptions] = useState<OptionEntry[]>([]);
+  const [teamOptions, setTeamOptions] = useState<OptionEntry[]>([]);
+  // country and league data
   const [countries, setCountries] = useState<CountryEntry[]>([]);
   const [leagues, setLeagues] = useState<LeagueEntry[]>([]);
-  const [teams, setTeams] = useState<TeamEntry[]>([]);
-  const [isVisibleFirstDrop, setIsVisibleFirstDrop] = useState(false);
-  const [isVisibleSecondDrop, setIsVisibleSecondDrop] = useState(false);
-  const [isVisibleThirdDrop, setIsVisibleThirdDrop] = useState(false);
+
+  useEffect(() => {
+    // get countries and leagues data when the component mounts
+    const getData = async () => await getCachedData();
+    getData().then(
+      (data: {
+        countries_data: CountryEntry[];
+        league_data: LeagueEntry[];
+      }) => {
+        setCountries(data.countries_data);
+        setLeagues(data.league_data);
+      }
+    );
+  }, []);
+
+  useEffect(() => {
+    setSelectedCountry("");
+    setSelectedLeague("");
+    setSelectedTeam("");
+    setTeamOptions([]);
+    setLeagueOptions([]);
+  }, [selectedOption]);
+
+  useEffect(() => {
+    if (selectedCountry.length > 0) {
+      setSelectedLeague("");
+      setSelectedTeam("");
+      setSelectedCountry(selectedCountry);
+      setTeamOptions([]);
+    }
+  }, [selectedCountry]);
+
+  useEffect(() => {
+    // Set teams based on the selected league
+    if (selectedLeague.length > 0) {
+      const selectedLeagueEntry = leagues.find(
+        (league: LeagueEntry) => league.name === selectedLeague
+      )!;
+      if (
+        selectedLeagueEntry.teams.find((team) => team.name === "All Teams") ===
+        undefined
+      )
+        // add "All Teams" to the beginning of the array only if not already present
+        selectedLeagueEntry!.teams.unshift({
+          name: "All Teams",
+          logo: "",
+        });
+
+      setTeamOptions(
+        selectedLeagueEntry
+          ? selectedLeagueEntry.teams.map((team) => ({
+              name: team.name,
+              imgURL: team.logo,
+            }))
+          : []
+      );
+    }
+  }, [selectedLeague, leagues]);
+
+  useEffect(() => {
+    //save favorites to local storage when the favorites state changes
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
 
   const deleteFavs = () => {
     localStorage.removeItem("favorites");
     setFavorites([]);
-    setSelectedItem("");
+    setSelectedOption("");
     setSelectedCountry("");
     setSelectedLeague("");
     setSelectedTeam("");
@@ -136,61 +193,6 @@ const Survey = () => {
     }
   };
 
-  useEffect(() => {
-    // get countries and leagues data when the component mounts
-    const getData = async () => await getCachedData();
-    getData().then(
-      (data: {
-        countries_data: CountryEntry[];
-        league_data: LeagueEntry[];
-      }) => {
-        setCountries(data.countries_data);
-        setLeagues(data.league_data);
-      }
-    );
-  }, []);
-
-  useEffect(() => {
-    // Set teams based on the selected league
-    if (selectedLeague) {
-      const selectedLeagueData = leagues.find(
-        (league: LeagueEntry) => league.name === selectedLeague
-      )!;
-      if (
-        selectedLeagueData.teams.find((team) => team.name === "All Teams") ===
-        undefined
-      )
-        // add "All Teams" to the beginning of the array only if not already present
-        selectedLeagueData!.teams.unshift({
-          name: "All Teams",
-          logo: "",
-        });
-
-      setTeams(selectedLeagueData ? selectedLeagueData.teams : []);
-    }
-  }, [selectedLeague, leagues]);
-
-  useEffect(() => {
-    //save favorites to local storage when the favorites state changes
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }, [favorites]);
-
-  useEffect(() => {
-    // Set visibility of the dropdowns based on the selections
-    setIsVisibleFirstDrop(
-      selectedItem === "leagues" || selectedItem === "countries"
-    );
-    setIsVisibleSecondDrop(
-      selectedItem === "countries" && selectedCountry.length > 0
-    );
-    setIsVisibleThirdDrop(
-      (selectedItem === "leagues" && selectedLeague.length > 0) ||
-        (selectedItem === "countries" && selectedLeague.length > 0)
-    );
-  }, [selectedItem, selectedCountry, selectedLeague]);
-
-  const selectedOptions = selectedItem === "leagues" ? leagues : countries;
-
   const isAddToFavsDisabled =
     selectedLeague.length === 0 || selectedTeam.length === 0;
 
@@ -198,46 +200,56 @@ const Survey = () => {
     return (
       <>
         <div className="survey">
+          <h4>Select your favorite teams and leagues</h4>
+
           <Dropdown
             label="Select Option"
             options={[
-              { name: "Leagues", value: "leagues" },
-              { name: "Countries", value: "countries" },
+              { name: "Leagues", imgURL: "img/leagues" },
+              { name: "Countries", imgURL: "img/countries" },
             ]}
-            onChange={(value) => {
-              setSelectedItem(value);
-              setSelectedCountry("");
-              setSelectedLeague("");
-              setSelectedTeam("");
-              setIsVisibleFirstDrop(false);
-              setIsVisibleSecondDrop(false);
-              setIsVisibleThirdDrop(false);
+            onSelection={(option: string) => {
+              setSelectedOption(option);
+              console.log("selected option: ", option);
+              if (option.toLowerCase() === "leagues") {
+                setLeagueOptions(
+                  leagues.map((league) => ({
+                    name: league.name,
+                    imgURL: league.logo,
+                  }))
+                );
+              } else if (option.toLowerCase() === "countries") {
+                setCountryOptions(
+                  countries.map((country) => ({
+                    name: country.name,
+                    imgURL: country.flag,
+                  }))
+                );
+              }
             }}
           />
 
-          {isVisibleFirstDrop && (
+          {selectedOption.toLowerCase() === "leagues" && (
             <Dropdown
-              label={`Select ${
-                selectedItem === "leagues" ? "League" : "Country"
-              } `}
-              options={selectedOptions}
-              onChange={(value) => {
-                if (selectedItem === "leagues") {
-                  console.log("selected league: ", value);
-                  setSelectedLeague(value);
-                  setSelectedTeam("");
-                  setSelectedCountry("");
-                } else {
-                  console.log("selected country: ", value);
-                  setSelectedCountry(value);
-                  setSelectedLeague("");
-                  setSelectedTeam("");
-                }
+              label={`Select League`}
+              options={leagueOptions}
+              onSelection={(option: string) => {
+                setSelectedLeague(option);
               }}
             />
           )}
 
-          {isVisibleSecondDrop && (
+          {selectedOption.toLowerCase() === "countries" && (
+            <Dropdown
+              label={`Select Country`}
+              options={countryOptions}
+              onSelection={(option: string) => {
+                setSelectedCountry(option);
+              }}
+            />
+          )}
+
+          {selectedCountry.length > 0 && (
             <Dropdown
               label={`Select League in ${selectedCountry} `}
               options={countries
@@ -246,26 +258,34 @@ const Survey = () => {
                 )!
                 .leagues.map((league) => ({
                   name: league.name,
-                  value: league.name,
+                  imgURL: league.logo,
                 }))}
-              onChange={(value) => {
-                console.log(`Selected League: ${value}`);
-                setSelectedLeague(value);
+              onSelection={(name) => {
+                console.log(`Selected League: ${name}`);
                 setSelectedTeam("");
+                setSelectedLeague(name);
+                console.log(
+                  "teams in selected league ",
+                  name,
+                  " : ",
+                  teamOptions
+                );
               }}
             />
           )}
 
-          {isVisibleThirdDrop && (
+          {selectedLeague.length > 0 && (
             <Dropdown
               label={`Select Team`}
-              options={teams.map((team: TeamEntry) => ({
-                name: team.name,
-                value: team.name,
-              }))}
-              onChange={(value) => {
-                console.log(`Selected Team: ${value}`);
-                setSelectedTeam(value);
+              options={leagues
+                .find((league) => league.name === selectedLeague)!
+                .teams.map((team: TeamEntry) => ({
+                  name: team.name,
+                  imgURL: team.logo,
+                }))}
+              onSelection={(name) => {
+                console.log(`Selected Team: ${name}`);
+                setSelectedTeam(name);
               }}
             />
           )}
