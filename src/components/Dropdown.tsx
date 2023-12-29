@@ -35,7 +35,7 @@ export const Dropdown = ({ label, options, onSelection }: DropdownProps) => {
   };
 
   return (
-    <div className="dropdown">
+    <div className="dropdown-container">
       <button onClick={handleOpen}>{label}</button>
       {open ? (
         <>
@@ -45,7 +45,7 @@ export const Dropdown = ({ label, options, onSelection }: DropdownProps) => {
             id="myInput"
             onKeyUp={(event) => searchOptions(event.currentTarget.value)}
           />
-          <div className={"options"}>
+          <div className={"options-container"}>
             {currentOptions.map((option) => (
               <div
                 key={option.name}
