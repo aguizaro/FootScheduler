@@ -4,7 +4,7 @@ import Survey from "../components/Survey";
 const Planner = () => {
   return (
     <div className="inner-container">
-      <h1 className="title">My Planner</h1>
+      <h1 className="title">Select Teams to Follow</h1>
       <div className="content">
         <p>
           Please select your favorite football teams and leagues to follow. You

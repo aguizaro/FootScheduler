@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Dropdown } from "../components/Dropdown";
 import "../css/Survey.css";
@@ -29,8 +29,10 @@ interface CountryEntry {
 interface FavoritesEntry {
   league: string;
   league_id: number;
+  league_imgURL: string;
   team: string;
   team_id: number;
+  team_imgURL: string;
 }
 
 interface OptionEntry {
@@ -42,6 +44,7 @@ interface OptionEntry {
 interface SelectionEntry {
   name: string;
   id: number;
+  imgURL: string;
 }
 
 const fetchData = async () => {
@@ -99,6 +102,9 @@ const getCachedData = async () => {
 };
 
 export const Survey = () => {
+  //refs for styling
+  const currentSelectionRef = useRef<HTMLDivElement>(null);
+  const currentSelectionTitleRef = useRef<HTMLParagraphElement>(null);
   // favorite teams and leagues
   const [favorites, setFavorites] = useState<FavoritesEntry[]>(() => {
     const localFavorites = localStorage.getItem("favorites");
@@ -153,6 +159,7 @@ export const Survey = () => {
   }, [selectedCountry]);
 
   useEffect(() => {
+    setSelectedTeam(null);
     if (selectedLeague) {
       const selectedLeagueEntry = leagues.find(
         (league: LeagueEntry) => league.id === selectedLeague.id
@@ -175,17 +182,11 @@ export const Survey = () => {
           }))
         );
       }
+      //activate current-selection div display
+      currentSelectionRef.current!.style.display = "flex";
+      currentSelectionTitleRef.current!.style.display = "flex";
     }
-    setSelectedTeam(null);
   }, [selectedLeague, leagues]);
-
-  useEffect(() => {
-    //console.log("set team options: ", teamOptions);
-  }, [teamOptions]);
-
-  useEffect(() => {
-    //console.log("set league options: ", leagueOptions);
-  }, [leagueOptions]);
 
   useEffect(() => {
     //save favorites to local storage when the favorites state changes
@@ -211,6 +212,21 @@ export const Survey = () => {
     setSelectedCountry(null);
     setSelectedLeague(null);
     setSelectedTeam(null);
+  };
+
+  const removeCurrentSelection = () => {
+    setSelectedCountry(null);
+    setSelectedLeague(null);
+    setSelectedTeam(null);
+    setSelectedOption("");
+    setOptionLabel("Select Option");
+    setCountryLabel("Select Country");
+    setLeagueLabel("Select League");
+    setTeamLabel("Select Team");
+    setTeamOptions([]);
+    setLeagueOptions([]);
+    currentSelectionRef.current!.style.display = "none";
+    currentSelectionTitleRef.current!.style.display = "none";
   };
 
   const addToFavs = (newFav: FavoritesEntry) => {
@@ -358,39 +374,83 @@ export const Survey = () => {
             />
           )}
         </div>
-        <div className="current-fav-container">
-          <p className="current-selection">
-            <strong>Selection - </strong>{" "}
-            {selectedLeague ? selectedLeague.name : ""} -{" "}
-            {selectedTeam ? selectedTeam.name : ""}
-          </p>
-          <div className="fav-buttons">
-            <button
-              onClick={() => {
-                if (selectedLeague && selectedTeam)
-                  addToFavs({
-                    league: selectedLeague.name,
-                    league_id: selectedLeague.id,
-                    team: selectedTeam.name,
-                    team_id: selectedTeam.id,
-                  });
-              }}
-              disabled={isAddToFavsDisabled}
+        <div className="fav-container">
+          <div className="current-fav-container">
+            <p className="selection-title" ref={currentSelectionTitleRef}>
+              <strong>Current Selection</strong>{" "}
+            </p>
+            <div
+              id="current-selection"
+              className="current-selection"
+              ref={currentSelectionRef}
             >
-              Add to favorites
-            </button>
-            <button
-              onClick={() => deleteFavs()}
-              disabled={favorites.length <= 0}
-            >
-              Delete Favorites
-            </button>
+              <div id="current-league" className="current-selection-league">
+                {selectedLeague && (
+                  <>
+                    <img
+                      src={selectedLeague.imgURL}
+                      alt={selectedLeague.name}
+                    />
+                    <p>{selectedLeague.name}</p>
+                  </>
+                )}
+              </div>
+              <div id="current-team" className="current-selection-team">
+                {selectedTeam && (
+                  <>
+                    <img src={selectedTeam.imgURL} alt={selectedTeam.name} />
+                    <p>{selectedTeam.name}</p>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="fav-buttons">
+              <button
+                onClick={() => {
+                  removeCurrentSelection();
+                  if (selectedLeague && selectedTeam)
+                    addToFavs({
+                      league: selectedLeague.name,
+                      league_id: selectedLeague.id,
+                      league_imgURL: selectedLeague.imgURL,
+                      team: selectedTeam.name,
+                      team_id: selectedTeam.id,
+                      team_imgURL: selectedTeam.imgURL,
+                    });
+                }}
+                disabled={isAddToFavsDisabled}
+              >
+                Add to favorites
+              </button>
+              <button
+                onClick={() => deleteFavs()}
+                disabled={favorites.length <= 0}
+              >
+                Delete Favorites
+              </button>
+            </div>
           </div>
-        </div>
-        <div className="current-favorites">
-          {favorites.map((fav: FavoritesEntry, index: number) => (
-            <p key={index}>{`${fav.league} - ${fav.team}`}</p>
-          ))}
+          <div className="current-favorites">
+            <p className="selection-title">
+              <strong>Current Favorites</strong>{" "}
+            </p>
+            {favorites.map((fav: FavoritesEntry, index: number) => (
+              <div key={index} className="current-selection">
+                {fav && (
+                  <>
+                    <div className="current-selection-league">
+                      <img src={fav.league_imgURL} alt={fav.league} />
+                      <p>{fav.league}</p>
+                    </div>
+                    <div className="current-selection-team">
+                      <img src={fav.team_imgURL} alt={fav.team} />
+                      <p>{fav.team}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </>
     );
