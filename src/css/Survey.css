@@ -1,0 +1,41 @@
+.survey {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  margin: 1em;
+  padding: 1em;
+  background-color: #333;
+  color: #fff;
+  box-shadow: var(--color-accent) 4px 4px 0px 0px;
+  border-radius: 8px 8px 8px 8px;
+}
+
+.dropdown {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  align-content: center;
+  margin: 0.5em;
+}
+
+.current-fav-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.current-selection {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background-color: var(--color-darker);
+  border: 2px solid var(--color-darkest);
+  border-radius: 8px;
+}
+
+.fav-buttons button {
+  margin: 0.5em;
+}

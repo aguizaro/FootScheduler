@@ -3,6 +3,11 @@
   display: flex;
   flex-direction: column;
   margin: 0.5em;
+  cursor: pointer;
+}
+
+.dropdown-container button {
+  margin-bottom: 0.5em;
 }
 
 .options-container {
@@ -17,6 +22,11 @@
   justify-content: flex-start;
   align-items: center;
 
+  margin-top: 0.5em;
+}
+
+input[type="text"] {
+  margin: 0.5em 0 0.5em 0;
 }
 
 .option {
@@ -34,4 +44,5 @@
   width: 50%;
   margin-right: 4em;
   text-align: center;
+  align-self: center;
 }

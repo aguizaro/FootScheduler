@@ -1,19 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Dropdown.css";
 
-interface Option {
+interface OptionEntry {
   name: string;
+  id: number;
   imgURL: string;
 }
 interface DropdownProps {
   label: string;
-  options: Option[];
-  onSelection: (selectedOption: string) => void;
+  options: OptionEntry[];
+  onSelection: (selectedOption: OptionEntry) => void;
+  allowSearch?: boolean;
 }
 
-export const Dropdown = ({ label, options, onSelection }: DropdownProps) => {
-  const [open, setOpen] = React.useState(false);
+export const Dropdown = ({
+  label,
+  options,
+  onSelection,
+  allowSearch = false,
+}: DropdownProps) => {
+  const [open, setOpen] = useState(false);
   const [currentOptions, setCurrentOptions] = useState(options);
+
+  useEffect(() => {
+    if (open) {
+      setCurrentOptions(options);
+    }
+  }, [open, options]);
+
+  useEffect(() => {
+    console.log("currentOptions updated: ", currentOptions);
+  }, [currentOptions]);
 
   // handle opening and closing of the dropdown
   const handleOpen = () => {
@@ -21,7 +38,7 @@ export const Dropdown = ({ label, options, onSelection }: DropdownProps) => {
   };
 
   // handle selection of an option
-  const handleSelection = (selectedOption: string) => {
+  const handleSelection = (selectedOption: OptionEntry) => {
     setOpen(false); //close the dropdown
     onSelection(selectedOption); //call the callback
   };
@@ -39,19 +56,27 @@ export const Dropdown = ({ label, options, onSelection }: DropdownProps) => {
       <button onClick={handleOpen}>{label}</button>
       {open ? (
         <>
-          <input
-            type="text"
-            placeholder="Search.."
-            id="myInput"
-            onKeyUp={(event) => searchOptions(event.currentTarget.value)}
-          />
+          {allowSearch && (
+            <input
+              type="text"
+              placeholder="Search.."
+              id="myInput"
+              onKeyUp={(event) => searchOptions(event.currentTarget.value)}
+            />
+          )}
           <div className={"options-container"}>
             {currentOptions.map((option) => (
               <div
                 key={option.name}
                 id={option.name}
                 className="option"
-                onClick={(event) => handleSelection(event.currentTarget.id)}
+                onClick={() =>
+                  handleSelection({
+                    name: option.name,
+                    id: option.id,
+                    imgURL: option.imgURL,
+                  })
+                }
               >
                 <img
                   src={option.imgURL}
