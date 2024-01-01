@@ -21,10 +21,9 @@
 }
 
 body {
-  padding: 0em;
-  margin: 1em;
-  min-width: 95vw;
-  min-height: 95vh;
+  width: 98vw;
+  min-width: 365px;
+  min-height: 98vh;
   display: flex;
   justify-content: center;
   text-align: center;
@@ -69,7 +68,8 @@ button {
 }
 
 button:hover {
-  border-color: var(--color-highlight);
+  border-color: var(--color-highlight) !important;
+  background-color: var(--color-darker) !important;
 }
 
 button:focus,
@@ -77,24 +77,7 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-.navbar {
-  display: flex;
-  height: 2em;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background-color: var(--color-darker);
-  color: #fff;
-  width: 95%;
-  box-shadow: var(--color-accent) 4px 4px 0px 0px;
-  border-radius: 8px 8px 8px 8px;
-}
 
-.nav-links {
-  list-style: none;
-  display: flex;
-  gap: 3rem;
-}
 
 .title {
   color: var(--color-highlight);
@@ -118,8 +101,6 @@ button:focus-visible {
   align-items: center;
 
 }
-
-
 
 footer {
   background-color: #333;
@@ -148,19 +129,11 @@ footer {
   body {
     width: 100vw;
     max-height: 100vh;
+    min-height: 95vh;
     margin: 1em;
-  }
-
-  .navbar {
-    overflow: auto;
-    justify-content: space-evenly;
   }
 
   .nav-links {
     gap: 2rem;
-  }
-
-  .logo {
-    scale: 0.7;
   }
 }

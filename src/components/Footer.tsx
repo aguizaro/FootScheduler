@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer>
       <p>
-        &copy; 2023 FootScheduler |{" "}
+        &copy; 2023 FutPlanner |{" "}
         <a
           href="https://github.com/aguizaro/FutPlanner"
           target="_blank"

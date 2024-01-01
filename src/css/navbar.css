@@ -1,0 +1,35 @@
+.navbar {
+  display: flex;
+  height: 2em;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--color-darker);
+  color: #fff;
+  width: 95%;
+  box-shadow: var(--color-accent) 4px 4px 0px 0px;
+  border-radius: 8px 8px 8px 8px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 3rem;
+}
+
+@media screen and (max-width: 768px) {
+
+  .logo {
+    scale: 0.7;
+  }
+
+  .navbar {
+    overflow: auto;
+    min-height: 2em;
+  }
+
+  .nav-links {
+    gap: 2rem;
+  }
+
+}

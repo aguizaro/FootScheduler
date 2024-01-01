@@ -451,6 +451,19 @@ export const Survey = () => {
               </div>
             ))}
           </div>
+          <div className="submit-button">
+            <button
+              onClick={() => {
+                // create planner here
+              }}
+              disabled={favorites.length <= 0}
+              style={{
+                color: favorites.length <= 0 ? "" : "#2cf200",
+              }}
+            >
+              Create Planner
+            </button>
+          </div>
         </div>
       </>
     );

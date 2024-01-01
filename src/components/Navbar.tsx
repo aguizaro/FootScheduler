@@ -1,5 +1,6 @@
 import React from "react";
 import { logo } from "../../public/dumbbell.tsx";
+import "../css/navbar.css";
 
 const Navbar = () => {
   //console.log(import.meta.env.VITE_APP_BASE_PATH);
