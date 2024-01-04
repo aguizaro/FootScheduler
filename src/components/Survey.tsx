@@ -41,12 +41,6 @@ interface OptionEntry {
   imgURL: string;
 }
 
-interface SelectionEntry {
-  name: string;
-  id: number;
-  imgURL: string;
-}
-
 const fetchData = async () => {
   let league_data: LeagueEntry[];
   let countries_data: CountryEntry[];
@@ -114,13 +108,13 @@ export const Survey = () => {
   });
   // currently selected options
   const [selectedOption, setSelectedOption] = useState("");
-  const [selectedCountry, setSelectedCountry] = useState<SelectionEntry | null>(
+  const [selectedCountry, setSelectedCountry] = useState<OptionEntry | null>(
     null
   );
-  const [selectedLeague, setSelectedLeague] = useState<SelectionEntry | null>(
+  const [selectedLeague, setSelectedLeague] = useState<OptionEntry | null>(
     null
   );
-  const [selectedTeam, setSelectedTeam] = useState<SelectionEntry | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<OptionEntry | null>(null);
   // current labels for dropdowns
   const [optionLabel, setOptionLabel] = useState("Select Option");
   const [leagueLabel, setLeagueLabel] = useState(
@@ -212,6 +206,12 @@ export const Survey = () => {
     setSelectedCountry(null);
     setSelectedLeague(null);
     setSelectedTeam(null);
+    setOptionLabel("Select Option");
+    setCountryLabel("Select Country");
+    setLeagueLabel("Select League");
+    setTeamLabel("Select Team");
+    setTeamOptions([]);
+    setLeagueOptions([]);
   };
 
   const removeCurrentSelection = () => {
