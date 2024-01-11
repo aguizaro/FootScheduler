@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Dropdown } from "../components/Dropdown";
 import "../css/Survey.css";
+import { SyncLoader } from "react-spinners";
+import { useNavigate } from "react-router-dom";
+import moment from "moment-timezone";
+import Modal from "../components/Modal";
 
 interface TeamEntry {
   name: string;
@@ -41,12 +45,18 @@ interface OptionEntry {
   imgURL: string;
 }
 
+interface PlannerProps {
+  public_calendar_url: string;
+  calendar_name: string;
+  fixtures: { fixture; league; teams }[];
+}
+
 const fetchData = async () => {
   let league_data: LeagueEntry[];
   let countries_data: CountryEntry[];
   // fetch league data
   try {
-    const league_response = await axios.get("http://127.0.0.1:3001/leagues");
+    const league_response = await axios.get("http://localhost:3001/leagues");
     if (league_response.status !== 200)
       throw new Error(league_response.statusText);
     league_data = league_response.data;
@@ -59,7 +69,7 @@ const fetchData = async () => {
   // fetch country data
   try {
     const countries_response = await axios.get(
-      "http://127.0.0.1:3001/countries"
+      "http://localhost:3001/countries"
     );
     if (countries_response.status !== 200)
       throw new Error(countries_response.statusText);
@@ -96,9 +106,11 @@ const getCachedData = async () => {
 };
 
 export const Survey = () => {
+  const navigate = useNavigate();
   //refs for styling
   const currentSelectionRef = useRef<HTMLDivElement>(null);
   const currentSelectionTitleRef = useRef<HTMLParagraphElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   // favorite teams and leagues
   const [favorites, setFavorites] = useState<FavoritesEntry[]>(() => {
     const localFavorites = localStorage.getItem("favorites");
@@ -129,9 +141,13 @@ export const Survey = () => {
   // country and league data
   const [countries, setCountries] = useState<CountryEntry[]>([]);
   const [leagues, setLeagues] = useState<LeagueEntry[]>([]);
+  const [userTimezone, setUserTimezone] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // get countries and leagues data when the component mounts
+    disableLoading(); // disable loading spinner div
     const getData = async () => await getCachedData();
     getData().then(
       (data: {
@@ -165,8 +181,8 @@ export const Survey = () => {
         // add "All Teams" to the beginning of the Teams array only if not already present
         selectedLeagueEntry!.teams.unshift({
           name: "All Teams",
-          id: -1,
-          logo: "",
+          id: 0,
+          logo: selectedLeagueEntry.logo,
         });
         setTeamOptions(
           selectedLeagueEntry.teams.map((team) => ({
@@ -198,6 +214,14 @@ export const Survey = () => {
   useEffect(() => {
     setTeamLabel("Select Team");
   }, [leagueLabel]);
+
+  useEffect(() => {
+    if (isLoading) {
+      buttonRef.current!.disabled = true;
+      buttonRef.current!.style.color = "grey";
+      buttonRef.current!.style.backgroundColor = "#1a1a1a";
+    }
+  }, [isLoading]);
 
   const deleteFavs = () => {
     localStorage.removeItem("favorites");
@@ -239,6 +263,53 @@ export const Survey = () => {
     } else {
       // if favorites is empty, add new fav -> also saves to localstorage in useEffect
       setFavorites([newFav]);
+    }
+  };
+
+  const enableLoading = () => {
+    setIsLoading(true);
+  };
+
+  const disableLoading = () => {
+    setIsLoading(false);
+  };
+
+  const fetchPlan = async (name, timeZone) => {
+    try {
+      let planURL = "http://localhost:3001/plan?";
+      let delim = "";
+      for (let i = 0; i < favorites.length; i++) {
+        planURL =
+          planURL +
+          `${delim}entries[]=${favorites[i].league_id}&entries[]=${favorites[i].team_id}`;
+        delim = "&";
+      }
+      if (name) planURL = planURL + `&name=${name}`;
+      if (timeZone) planURL = planURL + `&timeZone=${timeZone}`;
+
+      console.log("fetching... planURL: ", planURL);
+      const response = await axios.get(planURL);
+      console.log("response: ", response);
+      return response;
+    } catch (error) {
+      console.error("Error fetching plan:", error);
+      return null;
+    }
+  };
+
+  const storeResponse = (data: PlannerProps) => {
+    console.log("data: ", data);
+    if (data.fixtures.length > 0) {
+      const storedPlanners = localStorage.getItem("activePlanners") || "";
+      if (storedPlanners === "") {
+        localStorage.setItem("activePlanners", JSON.stringify([data]));
+        return;
+      }
+      const currentPlanners = JSON.parse(storedPlanners) as PlannerProps[];
+      console.log("currentPlanners: ", currentPlanners);
+      currentPlanners.push(data);
+      console.log("after concat currentPlanners: ", currentPlanners);
+      localStorage.setItem("activePlanners", JSON.stringify(currentPlanners));
     }
   };
 
@@ -453,16 +524,45 @@ export const Survey = () => {
           </div>
           <div className="submit-button">
             <button
+              ref={buttonRef}
               onClick={() => {
-                // create planner here
+                const userTimezone = moment.tz.guess();
+                setUserTimezone(userTimezone);
+                setIsModalOpen(true);
               }}
-              disabled={favorites.length <= 0}
+              disabled={isLoading || favorites.length <= 0}
               style={{
                 color: favorites.length <= 0 ? "" : "#2cf200",
               }}
             >
               Create Planner
             </button>
+            {isLoading && (
+              <div className="loading">
+                <SyncLoader
+                  color="#2cf200"
+                  margin={5}
+                  size={16}
+                  speedMultiplier={0.6}
+                />
+              </div>
+            )}
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onConfirm={(name: string) => {
+                setIsLoading(true);
+                setIsModalOpen(false);
+                enableLoading();
+                fetchPlan(name, userTimezone).then((response) => {
+                  if (response?.status === 200) {
+                    disableLoading();
+                    storeResponse(response.data);
+                    navigate("/home");
+                  }
+                });
+              }}
+            />
           </div>
         </div>
       </>

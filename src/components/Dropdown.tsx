@@ -28,10 +28,6 @@ export const Dropdown = ({
     }
   }, [open, options]);
 
-  useEffect(() => {
-    console.log("currentOptions updated: ", currentOptions);
-  }, [currentOptions]);
-
   // handle opening and closing of the dropdown
   const handleOpen = () => {
     setOpen(!open);

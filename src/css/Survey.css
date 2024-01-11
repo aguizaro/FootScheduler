@@ -94,6 +94,13 @@
 }
 
 .submit-button {
+  width: 40%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
   margin: 0.5em;
-  width: 50%;
+}
+
+.loading {
+  margin-top: 0.5em;
 }
