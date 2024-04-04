@@ -1,4 +1,4 @@
-## FutPlanner Project
+## FutPlanner
 
 I used [React](https://react.dev/) and [Vite](https://vitejs.dev/) to develop a front-end interface that allows users to select their favorite teams and leagues from a dropdown list. Using the Axios library, the front end sends requests to my API with user-defined data in order to display a personalized calendar.
 
